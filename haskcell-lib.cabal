@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ff7f15e2793d6727725069f5d31266edb6b3324add33852b930b90f2c15494f8
+-- hash: 3bdb938a36e9a74d78c6cd230eb6e248c71a535a96b513f99bf586b5b5387c6d
 
 name:           haskcell-lib
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 library
   exposed-modules:
       Experimental
+      HLib
       Lib
   other-modules:
       Paths_haskcell_lib
@@ -35,6 +36,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , matrix
     , time
   default-language: Haskell2010
 
@@ -50,5 +52,6 @@ test-suite expenses-test
       base >=4.7 && <5
     , containers
     , expenses
+    , matrix
     , time
   default-language: Haskell2010
