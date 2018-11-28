@@ -18,14 +18,14 @@ instance Celldable Cell where
 {- Entradas de ejemplo -}
 
 input :: [(Pos, Cell)]
-input = [ ((1,1), CString "Agua")
-        , ((1,2), CNumber 1)
-        , ((1,3), CDay (fromGregorian 2018 10 10))
-        , ((2,1), CString "Zumo")
-        , ((2,2), CNumber 2)
-        , ((2,3), CDay (fromGregorian 2018 10 10))
-        , ((1,5), CNumber 80)
-        , ((2,5), CNumber 90)
+input = [ ((1, 1), CString "Agua")
+        , ((2, 1), CNumber 1)
+        , ((3, 1), CDay (fromGregorian 2018 10 10))
+        , ((1, 2), CString "Zumo")
+        , ((2, 2), CNumber 2)
+        , ((3, 2), CDay (fromGregorian 2018 10 10))
+        , ((5, 1), CNumber 80)
+        , ((5, 2), CNumber 90)
         ]
 input2 :: [(Pos, Cell)]
 input2 = [ ((1,1), Blank)
@@ -34,6 +34,11 @@ input2 = [ ((1,1), Blank)
          , ((2,1), Blank)
          , ((2,2), Blank)
          , ((2,3), Blank)
+         ]
+
+input3 :: [(Pos, Cell)]
+input3 = [ ((6,6), CNumber 3)
+         , ((3,5), CString "Luishnardo")
          ]
 
 {- Mísero intento de abstraer -}
