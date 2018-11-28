@@ -1,4 +1,4 @@
-module Lib
+module Data.SpreadSheet
   ( SpreadSheet
   , Range
   , Pos

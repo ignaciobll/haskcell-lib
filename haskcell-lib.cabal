@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fb4b68d6148da35c2ced3240b47748eb3b0b6a4b82712c66fdd74f13c84dbe7b
+-- hash: f8afcc311eb0b3f39f399eddfbfc1b901f298f6623e90481967a7f87658c7496
 
 name:           haskcell-lib
 version:        0.1.0.0
@@ -27,7 +27,7 @@ source-repository head
 library
   exposed-modules:
       Cell
-      Lib
+      Data.SpreadSheet
   other-modules:
       Paths_haskcell_lib
   hs-source-dirs:

@@ -1,6 +1,6 @@
 module Cell where
 
-import Lib
+import Data.SpreadSheet
 
 import Data.Time.Calendar (Day, fromGregorian)
 
