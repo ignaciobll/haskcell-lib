@@ -1,0 +1,22 @@
+module HomeExpenses
+ (main) where
+
+import Data.Time.Calendar (Day, fromGregorian, toGregorian, gregorianMonthLength)
+import Prelude
+import Data.SpreadSheet
+import Cell
+import Data.Function
+import Date (between)
+
+data Expense = Expense
+               { concepto :: String
+               , coste    :: Double
+               , fecha    :: Day } deriving (Show, Eq)
+
+data HomeExpense = Transport Expense
+                 | Leisure Expense
+                 | Food Expense deriving (Show, Eq)
+
+
+main :: IO ()
+main = putStrLn "Home Expenses"

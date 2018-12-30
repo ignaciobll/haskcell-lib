@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f8afcc311eb0b3f39f399eddfbfc1b901f298f6623e90481967a7f87658c7496
+-- hash: a1ad9874afc444f2866d1ff5cd48db5a9ede24d395a4337e06e8cdd1dcdc1cde
 
 name:           haskcell-lib
 version:        0.1.0.0
@@ -19,6 +19,8 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
+    examples/Expenses.hs
+    examples/HomeExpenses.hs.bck
 
 source-repository head
   type: git
@@ -26,15 +28,34 @@ source-repository head
 
 library
   exposed-modules:
-      Cell
       Data.SpreadSheet
+      Data.SpreadSheet.Cell
+      Data.SpreadSheet.Date
+      Data.SpreadSheet.Internal.Pretty
   other-modules:
       Paths_haskcell_lib
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      QuickCheck
+    , base >=4.7 && <5
     , containers
+    , matrix
+    , time
+  default-language: Haskell2010
+
+executable example-expenses
+  main-is: Expenses.hs
+  other-modules:
+      Paths_haskcell_lib
+  hs-source-dirs:
+      examples
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Weverything -Wall -main-is Expenses
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , containers
+    , haskcell-lib
     , matrix
     , time
   default-language: Haskell2010
@@ -48,9 +69,10 @@ test-suite expenses-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      QuickCheck
+    , base >=4.7 && <5
     , containers
-    , expenses
+    , haskcell-lib
     , matrix
     , time
   default-language: Haskell2010
