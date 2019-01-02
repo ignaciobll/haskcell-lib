@@ -1,28 +1,24 @@
-module Data.SpreadSheet.Internal.Pretty
-  ( Celldable(..)
-  , prettyShowSpreadSheet
-  ) where
-
-import Data.SpreadSheet
-import Data.SpreadSheet (SpreadSheet(..))
-import qualified Data.Matrix as Mat
-import qualified Data.Map.Strict as Map
-
--- | Ante la uniformidad de las hojas de cálculo ('SpreadSheet' @a@,
+-- | Módulo interno que define una forma más visual de representar una
+-- hoja de cálculo de forma textual.
+--
+-- Ofrece una alternativa a la función 'show' para redefinir la
+-- visualización de una hoja de cáluclo
+-- ('Data.SpreadSheet.SpreadSheet').
+--
+-- Este módulo es *unsafe* al aprovechar la función 'show' de
+-- 'Data.Matrix.Matrix'.
+--
+-- Para poder usar de forma efectiva este módulo, se tendrá que
+-- definir una implementación de la clase 'Celldable', indicando la
+-- representación del valor vacío.
+--
+-- Ante la uniformidad de las hojas de cálculo ('SpreadSheet' @a@,
 -- 'SpreadSheet' 'Double') algunas de estas celdas pueden no tener
 -- valor. Esto no supone un problema para trabajar con ellas, salvo
 -- cuando queremos representar todo el conjuto de celdas que engloba
 -- el rango de una hoja.
 --
--- Se podría realizar una visualización de solo las celdas con
--- valores, para la que no haría falta una implementación de
-class Celldable a where
-  blank :: a
-
--- | Se condiciona a que sea 'Celldable' para que aquellas celdas
--- vacías tengan representación visual válida a elección de la
--- implementación.
---
+-- == Ejemplo de visualización
 -- Para visualizar por ejemplo una hoja de cálculo de números
 -- ('SpreadSheet' 'Double') no tenemos un valor 'Double' para las
 -- celdas vacías. La visualización por tanto, no sería posible. Si a
@@ -56,6 +52,22 @@ class Celldable a where
 -- │ 0.0  0.0 │
 -- │ 0.0  3.0 │
 -- └          ┘
+module Data.SpreadSheet.Internal.Pretty
+  ( Celldable(..)
+  , prettyShowSpreadSheet
+  ) where
+
+import Data.SpreadSheet
+import Data.SpreadSheet (SpreadSheet(..))
+import qualified Data.Matrix as Mat
+import qualified Data.Map.Strict as Map
+
+-- | Clase para indicar el valor con el que se representarán las
+-- celdas vacías.
+class Celldable a where
+  blank :: a
+
+-- | Función alternativa para representar una hoja de cálculo.
 prettyShowSpreadSheet :: (Show a, Celldable a) => SpreadSheet a -> String
 prettyShowSpreadSheet Empty = "Empty"
 prettyShowSpreadSheet s = (show $ Range (topl s) (botr s)) ++ "\n" ++ Mat.prettyMatrix mx

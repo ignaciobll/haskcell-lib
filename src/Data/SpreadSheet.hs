@@ -25,7 +25,14 @@ module Data.SpreadSheet
   , put
   , union
   , intersection
+  , (</>)
   , mapMaybe
+  -- * Propiedades derivadas
+  , width
+  , height
+  , limits
+  , columns
+  , rows
   ) where
 
 import qualified Data.Map.Strict as Map
@@ -97,8 +104,9 @@ instance Foldable SpreadSheet where
   foldr f z (Mk _ _ s) = Map.foldr f z s
   toList = toListValues
 
--- | Consultar 'Data.SpreadSheet.Pretty.prettyShowSpreadSheet' para una visualización más
--- avanzada.
+-- | Consultar
+-- 'Data.SpreadSheet.Internal.Pretty.prettyShowSpreadSheet' para una
+-- visualización más avanzada.
 instance {-# OVERLAPPABLE #-} Show a => Show (SpreadSheet a) where
   show = showSpreadSheet
 
@@ -108,13 +116,44 @@ showSpreadSheet (Mk tl br s) = show (Range tl br) ++ "\n" ++ (show s)
 
 {- Propiedades derivadas -}
 
+
+-- | Indica el número de columnas que tiene una hoja de cálculo.
 width :: SpreadSheet a -> Maybe Int
 width Empty = Nothing
 width (Mk (x1, _) (x2, _) _) = Just (x2 - x1)
 
+-- | Indica el número de filas que tiene una hoja de cálculo.
 height :: SpreadSheet a -> Maybe Int
 height Empty = Nothing
 height (Mk (_, y1) (_, y2) _) = Just (y2 - y1)
+
+-- | Indica el rango en el que están contenidos los valores de la hoja
+-- de cálculo.
+limits :: SpreadSheet a -> Maybe Range
+limits Empty = Nothing
+limits (Mk tl br _) = Just $ Range tl br
+
+-- | Enumera las columnas de la hoja de cálculo.
+--
+-- >>> columns empty
+-- []
+--
+-- >>> columns $ fromList [((5,3), True), ((10,6), True)]
+-- [5,6,7,8,9,10]
+columns :: SpreadSheet a -> [Int]
+columns Empty = []
+columns (Mk (tc, _) (bc, _) _) = [tc..bc]
+
+-- | Enumera las filas de la hoja de cálculo.
+--
+-- >>> rows empty
+-- []
+--
+-- >>> rows $ fromList [((5,3), True), ((10,6), True)]
+-- [3,4,5,6]
+rows :: SpreadSheet a -> [Int]
+rows Empty = []
+rows (Mk (_, tr) (_, br) _) = [tr..br]
 
 {- Constructures -}
 
@@ -221,6 +260,9 @@ intersection Empty _ = Empty
 intersection _ Empty = Empty
 intersection s s'    = fromDict $ Map.intersection (mp s) (mp s')
 
+-- | Operador para la intersección. Ver 'intersection'.
+(</>) :: SpreadSheet a -> SpreadSheet a -> SpreadSheet a
+(</>) = intersection
 
 -- | Inserta en una posición un valor. Este valor se puede generar
 -- según una función sobre una hoja de cálculo.

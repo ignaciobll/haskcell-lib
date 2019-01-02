@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a1ad9874afc444f2866d1ff5cd48db5a9ede24d395a4337e06e8cdd1dcdc1cde
+-- hash: 11e418eafd6accbd85ea44ee5f9d0a56814ce438c61b75866bc70c6b5f36b9c7
 
 name:           haskcell-lib
 version:        0.1.0.0
@@ -50,7 +50,7 @@ executable example-expenses
       Paths_haskcell_lib
   hs-source-dirs:
       examples
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Weverything -Wall -main-is Expenses
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Expenses
   build-depends:
       QuickCheck
     , base >=4.7 && <5
