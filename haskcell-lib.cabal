@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c9451d88155d7d62f314e72d5b5e368b8eb7956a6c019f145cc28d231ec8a35c
+-- hash: bee5056a799101b6e8284ca65f879634775c646f3f9947e753fa8f87e4bbb86e
 
 name:           haskcell-lib
-version:        0.2.0.0
+version:        0.2.0.1
 description:    Please see the README on GitHub at <https://github.com/ignaciobll/haskcell-lib#readme>
 homepage:       https://github.com/ignaciobll/haskcell-lib#readme
 bug-reports:    https://github.com/ignaciobll/haskcell-lib/issues

@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+
 -- | Este módulo permita una utilización más convencional de las hojas
 -- de cálculo. Ofrece el tipo de datos necesario para poder tener
 -- valores heterogéneos (de distinto tipo) sobre cada celda.
@@ -211,12 +212,12 @@ data Align = Horizontal | Vertical deriving (Show, Eq)
 --
 -- Es necesario que estos datos implementen la clase 'CompositeCell'
 toCellAlign :: CompositeCell a => Align -> Pos -> [a] -> SpreadSheet Cell
-toCellAlign align (x,y) cc
-  | align == Horizontal = mconcat $ map (go colIndex) cc
-  | align == Vertical   = mconcat $ map (go rowIndex) cc
-  where go l c = fromList $ zipWith (,) l (buildCell c)
-        colIndex = [(x+i, y) | i <- [0..]]
-        rowIndex = [(x, y+1) | i <- [0..]]
+toCellAlign align (x,y) listCC
+  | align == Horizontal = mconcat $ zipWith join rowIndex listCC
+  | align == Vertical   = mconcat $ zipWith join colIndex listCC
+  where join l c = fromList $ zipWith (,) l (buildCell c)
+        colIndex = map (\col -> [(x + col, y + i) | i <- [0..]]) [0..]
+        rowIndex = map (\row -> [(x + i, y + row) | i <- [0..]]) [0..]
 
 -- | Obtiene posibles datos complejos de un conjunto de celdas.
 fromCellAlign :: CompositeCell a => Align -> SpreadSheet Cell -> [Maybe a]
