@@ -7,6 +7,7 @@
 module Data.SpreadSheet
   ( SpreadSheet(..) -- Para reescribir en Data.SpreadSheet.Internal
   , Pos
+  -- , Pos'(..)
   , Range(..)
   -- * Constructores
   , empty
@@ -17,7 +18,7 @@ module Data.SpreadSheet
   , fromDict
   -- * Selección y referencias
   , get
-  , range
+  , selectRange
   , row
   , column
   , select
@@ -39,6 +40,8 @@ import qualified Data.Map.Strict as Map
 import Data.Foldable (toList)
 import Data.Bifunctor (bimap)
 import Data.Tuple (swap)
+import Data.Ix (Ix(..))
+import Numeric.Natural (Natural(..))
 
 -- | Posición de una celda en la hoja de cálculo. Comienzan en @(1,1)@.
 --
@@ -52,14 +55,20 @@ import Data.Tuple (swap)
 -- +------+----------+
 -- | @J9@ | @(10,9)@ |
 -- +------+----------+
-type Pos = (Int, Int)
+
+type Pos = (Natural, Natural)
+
+-- data Pos' = Pos'
+--   ( Int -- ^ Columna
+--   , Int -- ^ Fila
+--   ) deriving (Show, Eq, Ord, Ix)
 
 
 -- | Un rango está definido por dos posiciones, la superior izquierda
 -- y la inferior derecha.
 --
 -- Es utilizado en la generación de rangos con la función 'range'.
-data Range = Range Pos Pos deriving Show
+data Range = Range Pos Pos deriving (Show, Eq, Ord, Ix)
 
 -- | 'SpreadSheet'  representa la estructura  de datos de una  hoja de
 -- cálculo.
@@ -118,12 +127,12 @@ showSpreadSheet (Mk tl br s) = show (Range tl br) ++ "\n" ++ (show s)
 
 
 -- | Indica el número de columnas que tiene una hoja de cálculo.
-width :: SpreadSheet a -> Maybe Int
+width :: SpreadSheet a -> Maybe Natural
 width Empty = Nothing
 width (Mk (x1, _) (x2, _) _) = Just (x2 - x1)
 
 -- | Indica el número de filas que tiene una hoja de cálculo.
-height :: SpreadSheet a -> Maybe Int
+height :: SpreadSheet a -> Maybe Natural
 height Empty = Nothing
 height (Mk (_, y1) (_, y2) _) = Just (y2 - y1)
 
@@ -140,7 +149,7 @@ limits (Mk tl br _) = Just $ Range tl br
 --
 -- >>> columns $ fromList [((5,3), True), ((10,6), True)]
 -- [5,6,7,8,9,10]
-columns :: SpreadSheet a -> [Int]
+columns :: SpreadSheet a -> [Natural]
 columns Empty = []
 columns (Mk (tc, _) (bc, _) _) = [tc..bc]
 
@@ -151,7 +160,7 @@ columns (Mk (tc, _) (bc, _) _) = [tc..bc]
 --
 -- >>> rows $ fromList [((5,3), True), ((10,6), True)]
 -- [3,4,5,6]
-rows :: SpreadSheet a -> [Int]
+rows :: SpreadSheet a -> [Natural]
 rows Empty = []
 rows (Mk (_, tr) (_, br) _) = [tr..br]
 
@@ -320,8 +329,8 @@ select f s     = fromDict . fst . (Map.partitionWithKey (\k _ -> f k)) $ mp s
 -- >>> range (Range (8,7) (9,9)) $ fromList cells
 -- Range (8,7) (9,9)
 -- fromList [((8,7),70),((8,8),71),((8,9),72),((9,7),79),((9,8),80),((9,9),81)]
-range :: Range -> SpreadSheet a -> SpreadSheet a
-range (Range (ic, ir) (fc, fr)) s
+selectRange :: Range -> SpreadSheet a -> SpreadSheet a
+selectRange (Range (ic, ir) (fc, fr)) s
   | ic >= 0 && ir >= 0 && ic <= fc && ir <= fr = go
   | otherwise = Empty
   where go = select (\(c,r) -> ic <= c && ir <= r && fc >= c && fr >= r) s
@@ -334,7 +343,7 @@ range (Range (ic, ir) (fc, fr)) s
 -- >>> column 2 $ fromList cells
 -- Range (2,1) (2,5)
 -- fromList [((2,1),6),((2,2),7),((2,3),8),((2,4),9),((2,5),10)]
-column :: Int -> SpreadSheet a -> SpreadSheet a
+column :: Natural -> SpreadSheet a -> SpreadSheet a
 column n = select (\(c,r) -> c == n)
 
 
@@ -345,7 +354,7 @@ column n = select (\(c,r) -> c == n)
 -- >>> row 3 $ fromList cells
 -- Range (1,3) (5,3)
 -- fromList [((1,3),3),((2,3),8),((3,3),13),((4,3),18),((5,3),23)]
-row :: Int -> SpreadSheet a -> SpreadSheet a
+row :: Natural -> SpreadSheet a -> SpreadSheet a
 row n = select (\(c,r) -> r == n)
 
 --

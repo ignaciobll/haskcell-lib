@@ -4,7 +4,7 @@ module Expenses
 import Data.Time.Calendar (Day, fromGregorian, toGregorian, gregorianMonthLength)
 import Prelude
 import Data.SpreadSheet -- (SpreadSheet, Pos, toListValues, column, fromList, put)
-import Data.SpreadSheet.Cell -- (Cell(..), ComplexCell(..), buildCell, CCell(boxCell), extractDay, extractDouble, toCell)
+import Data.SpreadSheet.Cell -- (Cell(..), buildCell, CCell(boxCell), extractDay, extractDouble, toCell)
 import Data.SpreadSheet.Date (between)
 import Data.Function ((&))
 import Data.Maybe (catMaybes)
@@ -21,7 +21,7 @@ data Expense = Expense
 main :: IO ()
 main = do
   gen <- QC.generate $ QC.listOf arbitrary :: IO [Expense]
-  let ss = fromList $ toCell (1,1) gen
+  let ss = toCellAlign Horizontal (1,1) gen
   putStrLn . show $ ss
     & putCell (5,1) (const "Total")
     & putCell (5,2) (const "Octubre")
@@ -33,7 +33,7 @@ main = do
     & putCell (6,1) (gastoTotal . column 6)
 
 listaDeGastos :: SpreadSheet Cell -> [Expense]
-listaDeGastos s = catMaybes $ fromCells s
+listaDeGastos s = catMaybes $ fromCellAlign Horizontal s
 
 gastoTotal :: SpreadSheet Cell -> Double
 gastoTotal = sum . extractDouble
@@ -61,10 +61,10 @@ gastoMes d s = sum $ map snd $ filter (cond . fst) pair
     cond = \day -> between day beginMonth endMonth
     pair = zipWith (flip (,)) (toListValues . extractDouble $ column 2 s) (toListValues . extractDay $ column 3 s)
 
-instance ComplexCell Expense where
+instance CompositeCell Expense where
   size _ = 3
   buildCell (Expense con cost fec) = [CString con, CNumber cost, CDay fec]
-  buildComplex = buildExpense
+  buildComposite = buildExpense
 
 
 buildExpense :: [Cell] -> Maybe Expense

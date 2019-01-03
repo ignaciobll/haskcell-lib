@@ -12,17 +12,16 @@ module Data.SpreadSheet.Cell
   , extractDay
   , extractBool
   -- * Tipos complejos
-  , ComplexCell(..)
+  , CompositeCell(..)
   , Align(..)
-  , genPosAlign
-  , toCell
-  , toPosCell
-  , fromCells
+  , toCellAlign
+  , fromCellAlign
   ) where
 
 import Data.SpreadSheet
 import Data.SpreadSheet (Range(..), SpreadSheet(..))
 import Data.SpreadSheet.Internal.Pretty
+import Numeric.Natural (Natural(..))
 
 import Data.Time.Calendar (Day, fromGregorian)
 import qualified Data.Map.Strict as Map
@@ -83,10 +82,30 @@ instance CCell String where
 instance CCell Bool where
   boxCell a = CBool a
 
-class ComplexCell a where
-  size :: a -> Int
+-- | Conjuntos de celdas se pueden representar atributos de otros
+-- datos compuestos. Mediante la implementación de esta clase se
+-- ofrecen herramientas para componer y descomponer conjuntos de
+-- datos.
+class CompositeCell a where
+  -- | El númmero de celdas necesarias para representar un dato @a@
+  -- puede variar, por eso siempre se toma como parámetro para indicar
+  -- el tamaño.
+  --
+  -- > data Localización = Coordenada { lat :: Double, lon :: Double }
+  -- >                   | Dirección { calle :: String, número :: Int,
+  -- >                                 ciudad :: String
+  -- >                               }
+  --
+  -- Para el caso de una @Localización@ podríamos tener distintas
+  -- formas de representarla, y por tanto, varios tamaños.
+  --
+  -- >>> size $ Coordenada 40.404823 -3.839532
+  -- 2
+  -- >>> size $ Dirección "Avd. de los Ciruelos" 0 "Boadilla del Monte"
+  -- 3
+  size :: a -> Natural
   buildCell :: a -> [Cell]
-  buildComplex :: [Cell] -> Maybe a
+  buildComposite :: [Cell] -> Maybe a
 
 {- Mísero intento de abstraer -}
 
@@ -119,6 +138,7 @@ extractBool :: SpreadSheet Cell -> SpreadSheet Bool
 extractBool = mapMaybe byBool
   where byBool (CBool x) = Just x
         byBool _ = Nothing
+
 -- GADTS will fix this
 --        !
 --        v
@@ -184,26 +204,24 @@ putCell p f s = put p (boxCell . f) s
 -- > │ "Coste"           1.0        2.0 │
 -- > │ "Fecha"    2018-10-10 2018-10-10 │
 -- > └                                  ┘
-data Align = Horizontal | Vertical
+data Align = Horizontal | Vertical deriving (Show, Eq)
 
-genPos :: ComplexCell a => a -> Pos -> [Pos]
-genPos = genPosAlign Horizontal
+-- | Transforma un dato complejo a un conjunto de celdas. La
+-- orientación se representa como en 'Align'.
+--
+-- Es necesario que estos datos implementen la clase 'CompositeCell'
+toCellAlign :: CompositeCell a => Align -> Pos -> [a] -> SpreadSheet Cell
+toCellAlign align (x,y) cc
+  | align == Horizontal = mconcat $ map (go colIndex) cc
+  | align == Vertical   = mconcat $ map (go rowIndex) cc
+  where go l c = fromList $ zipWith (,) l (buildCell c)
+        colIndex = [(x+i, y) | i <- [0..]]
+        rowIndex = [(x, y+1) | i <- [0..]]
 
-genPosAlign :: ComplexCell a => Align -> a -> Pos -> [Pos]
-genPosAlign Horizontal cc (x, y) = [(x+i, y) | i <- [0..(size cc - 1)]]
-genPosAlign Vertical   cc (x, y) = [(x, y+i) | i <- [0..(size cc - 1)]]
-
-toCell :: ComplexCell a => Pos -> [a] -> [(Pos, Cell)]
-toCell (col, row) xs = mconcat $ zipWith toPosCell range xs
-  where range = [(col, row + i) | i <- [0..(length xs - 1)]]
-
-toPosCell :: ComplexCell a => Pos -> a -> [(Pos, Cell)]
-toPosCell pos x = zip (genPos x pos) (buildCell x)
-
--- toCellAlign :: Align -> Pos -> [Expense] -> [(Pos, Cell)]
--- toCellAlign Horizontal p ls = undefined
-
-fromCells :: ComplexCell a => SpreadSheet Cell -> [Maybe a]
-fromCells s
-  | s == empty = []
-  | otherwise  = map (\r -> buildComplex $ toListValues (row r s)) (rows s) -- Horizontal align
+-- | Obtiene posibles datos complejos de un conjunto de celdas.
+fromCellAlign :: CompositeCell a => Align -> SpreadSheet Cell -> [Maybe a]
+fromCellAlign _ s | s == empty = []
+fromCellAlign Horizontal s = map rowToCompositeCell (rows s)
+  where rowToCompositeCell n = buildComposite $ toListValues (row n s)
+fromCellAlign Vertical s = map columnToCompositeCell (columns s)
+  where columnToCompositeCell n = buildComposite $ toListValues (column n s)
