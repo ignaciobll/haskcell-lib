@@ -40,7 +40,10 @@ packages:
 # extra-deps: []
 
 extra-deps:
-- containers-0.6.0.1
+- containers-0.5.11.0
+# - quickcheck-properties-0.1@sha256:3bd0890e84ec4cf1c1e6e475152c2c0d7c85915a051cf4e8bf9ec70c32df735c
+- checkers-0.4.11
+- hspec-checkers-0.1.0.2
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

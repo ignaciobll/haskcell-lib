@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bee5056a799101b6e8284ca65f879634775c646f3f9947e753fa8f87e4bbb86e
+-- hash: 706962181f8d1f3d7d0ff3b371c525d6b4d51d06b061b8685188ced4845bbd12
 
 name:           haskcell-lib
-version:        0.2.0.1
+version:        0.2.1.0
 description:    Please see the README on GitHub at <https://github.com/ignaciobll/haskcell-lib#readme>
 homepage:       https://github.com/ignaciobll/haskcell-lib#readme
 bug-reports:    https://github.com/ignaciobll/haskcell-lib/issues
@@ -39,7 +39,10 @@ library
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , checkers
     , containers
+    , hspec
+    , hspec-checkers
     , matrix
     , time
   default-language: Haskell2010
@@ -54,8 +57,11 @@ executable example-expenses
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , checkers
     , containers
     , haskcell-lib
+    , hspec
+    , hspec-checkers
     , matrix
     , time
   default-language: Haskell2010
@@ -64,6 +70,7 @@ test-suite expenses-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Data.SpreadSheetSpec
       Paths_haskcell_lib
   hs-source-dirs:
       test
@@ -71,8 +78,11 @@ test-suite expenses-test
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , checkers
     , containers
     , haskcell-lib
+    , hspec
+    , hspec-checkers
     , matrix
     , time
   default-language: Haskell2010

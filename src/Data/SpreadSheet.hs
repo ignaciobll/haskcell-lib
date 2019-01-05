@@ -15,6 +15,7 @@ module Data.SpreadSheet
   , singletonPos
   , fromList
   , toListValues
+  , toListPosValues
   , fromDict
   -- * Selección y referencias
   , get
@@ -42,6 +43,7 @@ import Data.Bifunctor (bimap)
 import Data.Tuple (swap)
 import Data.Ix (Ix(..))
 import Numeric.Natural (Natural(..))
+
 
 -- | Posición de una celda en la hoja de cálculo. Comienzan en @(1,1)@.
 --
@@ -98,6 +100,7 @@ instance Eq a => Eq (SpreadSheet a) where
   _ == _ = False
 
 instance Functor SpreadSheet where
+  fmap f Empty = Empty
   fmap f (Mk tl br s) = Mk tl br (Map.map f s)
 
 
@@ -185,7 +188,7 @@ singleton = singletonPos (1,1)
 
 -- | Generar una hoja con un valor en una posición.
 --
--- >>> singleton (1,5) True
+-- >>> singletonPos (1,5) True
 -- Range (1,5) (1,5)
 -- fromList [((1,5),True)]
 --
@@ -244,6 +247,13 @@ fromDict' init end s = Mk init end s
 toListValues :: SpreadSheet a -> [a]
 toListValues Empty = []
 toListValues (Mk _ _ s) = map snd $ Map.toList s
+
+
+-- | Transforma una hoja de cálculo a una lista que contiene sus
+-- valores junto a las posiciones en las que están.
+toListPosValues :: SpreadSheet a -> [(Pos, a)]
+toListPosValues Empty = []
+toListPosValues (Mk _ _ s) = Map.toList s
 
 {- Modificación -}
 

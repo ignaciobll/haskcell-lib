@@ -1,7 +1,11 @@
+{-# LANGUAGE Safe #-}
+-- | Utilidades para poder trabajar mejor con fechas. No se pretende
+-- sobreescribir o hacer un nexo con librerías como 'Data.Time', pero
+-- sí ofrecer algunas funciones que pueden ser comunmente utilizadas
+-- en hojas de cálculo.
 module Data.SpreadSheet.Date
   ( Month(..)
   , WeekDay(..)
-  , between
   , next
   , getMonth
   ) where
@@ -9,9 +13,6 @@ module Data.SpreadSheet.Date
 import Test.QuickCheck (Arbitrary(..), Gen(..))
 import Data.Time.Calendar (Day(..), fromGregorian, toGregorian, gregorianMonthLength)
 import Data.Ix (Ix(..))
-
-between :: Day -> Day -> Day -> Bool
-between d d1 d2 = d1 <= d && d <= d2
 
 instance Arbitrary Day where
   arbitrary = genDay
@@ -21,13 +22,31 @@ genDay = do
   n <- (58450 +) <$> arbitrary
   return $ ModifiedJulianDay n
 
+
+-- | Permite iterar sobre datos enumerables de forma circular. Una vez
+-- se llega al último elemento, el siguiente será el primero.
+--
+-- >>> next October
+-- November
+-- >>> next December
+-- January
+--
+-- Permite la generacion de una lista infinita:
+--
+-- >>> take 11 $ iterate next Saturday
+-- [Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday,Monday,Tuesday]
 next :: (Eq a, Bounded a, Enum a) => a -> a
 next a = if a == maxBound then minBound else succ a
 
+-- | Indica el mes al que pertenece un día.
+--
+-- >>> getMonth $ fromGregorian 2019 1 14
+-- January
 getMonth :: Day -> Month
 getMonth date = toEnum month
   where (_year, month, _day) = toGregorian date
 
+-- | Enumerable con los meses.
 data Month
   = January
   | February
@@ -43,6 +62,7 @@ data Month
   | December
   deriving (Show, Eq, Ord, Bounded, Ix, Read)
 
+-- | Enumerable con los días de la semana.
 data WeekDay
   = Monday
   | Tuesday
