@@ -6,6 +6,7 @@ module Data.SpreadSheetSpec where
 import Test.Hspec
 import Test.Hspec.QuickCheck
 import Data.SpreadSheet
+import Data.SpreadSheet.Internal.Gen
 import Test.QuickCheck
 import Test.QuickCheck.Arbitrary
 import Test.QuickCheck.Function hiding (apply)
@@ -16,36 +17,15 @@ import Test.QuickCheck.Checkers
 import Test.QuickCheck.Classes
 
 import Numeric.Natural (Natural(..))
-import Data.List (nubBy, sort)
+import Data.List (nubBy, sort, isSubsequenceOf)
 import Data.Tuple (swap)
 import Control.Applicative (liftA2, liftA3)
 import qualified Data.Map.Strict as Map
 import Data.Ix
+import Data.Foldable (toList)
 
 instance Eq a => EqProp (SpreadSheet a) where
-  (=-=) = eq -- \a b -> property $ a == b
-
-instance Arbitrary Natural where
-  arbitrary = fromIntegral . abs <$> (arbitrary :: Gen Integer)
-  shrink nat = fromIntegral . abs <$> shrink (toInteger nat) :: [Natural]
-
-instance Arbitrary Range where
-  arbitrary = liftA2 Range arbitrary arbitrary
-
-instance Arbitrary a => Arbitrary (SpreadSheet a) where
-  arbitrary = fromList <$> arbitrary
-
-instance CoArbitrary a => CoArbitrary (SpreadSheet a) where
-  coarbitrary = coarbitrary . toListValues
-
-instance CoArbitrary Natural where
-  coarbitrary = coarbitrary . toInteger
-
-instance Function Natural where
-  function = functionMap toInteger fromInteger
-
-instance Function a => Function (SpreadSheet a) where
-  function = functionMap (Map.fromList . toListPosValues) (fromList . Map.toList)
+  (=-=) = eq
 
 spec :: Spec
 spec = do
@@ -154,6 +134,13 @@ spec = do
     prop "should be idempotent" $ do
       idempotent2 (intersection :: SpreadSheet Int -> SpreadSheet Int -> SpreadSheet Int)
 
+    context "using operator (</>)" $ do
+      prop "should satisfy associativity laws" $ do
+        isAssoc ((</>) :: SpreadSheet Int -> SpreadSheet Int -> SpreadSheet Int)
+
+      prop "should be idempotent" $ do
+        idempotent2 ((</>) :: SpreadSheet Int -> SpreadSheet Int -> SpreadSheet Int)
+
   describe "get" $ do
     prop "should retrieve value if exists in creational list" $ do
       get_prop
@@ -181,6 +168,15 @@ spec = do
   describe "mapMaybe" $ do
     prop "get only Just values" $ do
       mapMaybe_rel :: Fun Int (Maybe Int) -> SpreadSheet Int -> Bool
+
+  describe "show" $ do
+    prop "should have all values listed" $ do
+      prop_show
+
+  describe "toList" $  do
+    prop "should create a list with pos and values" $ do
+      (\s -> toList s == (toListValues s)) :: SpreadSheet Int -> Bool
+
 
 -- uniqueList :: (Arbitrary a, Show a) => Gen [(Pos, a)]
 uniqueList :: Gen [(Pos, ())]
@@ -355,3 +351,10 @@ mapMaybe_rel (TQF.apply -> f) s = (sort $ mapMaybeList s) == (sort . toListPosVa
                          . filter (\(p, val) -> val /= Nothing)
                          . map (\(p,val) -> (p, f val)) $
                          toListPosValues s
+
+prop_show :: SpreadSheet Int -> Property
+prop_show s
+  | s == empty = property $ (show s) == "Empty"
+  | otherwise = property $ all (\value -> any id $ map (\v -> value `isSubsequenceOf` v) visual) values
+  where values = map show $ toListPosValues s
+        visual = words $ show s

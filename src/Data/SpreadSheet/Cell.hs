@@ -50,7 +50,7 @@ data Cell = CNumber Double
                      -- funciones para facilitar operaciones con
                      -- fechas.
           | CBool Bool
-          | Blank deriving (Eq)
+          | Blank deriving (Eq, Read)
 
 instance Show Cell where
   show (CNumber x) = show x
@@ -82,6 +82,9 @@ instance CCell String where
 
 instance CCell Bool where
   boxCell a = CBool a
+
+instance CCell Cell where
+  boxCell = id
 
 -- | Conjuntos de celdas se pueden representar atributos de otros
 -- datos compuestos. Mediante la implementación de esta clase se
@@ -116,25 +119,25 @@ class CompositeCell a where
 -- una hoja de cálculo de 'Cell' y devuelven una nueva hoja con solo
 -- los valores deseados.
 
--- |
+-- | Genera una hoja de cálculo con solo los valores 'Double'
 extractDouble :: SpreadSheet Cell -> SpreadSheet Double
 extractDouble = mapMaybe byDouble
   where byDouble (CNumber x) = Just x
         byDouble _ = Nothing
 
--- |
+-- | Genera una hoja de cálculo con solo los valores 'String'
 extractString :: SpreadSheet Cell -> SpreadSheet String
 extractString = mapMaybe byString
   where byString (CString x) = Just x
         byString _ = Nothing
 
--- |
+-- | Genera una hoja de cálculo con solo los valores 'Day'
 extractDay :: SpreadSheet Cell -> SpreadSheet Day
 extractDay = mapMaybe byDay
   where byDay (CDay x) = Just x
         byDay _ = Nothing
 
--- |
+-- | Genera una hoja de cálculo con solo los valores 'Bool'
 extractBool :: SpreadSheet Cell -> SpreadSheet Bool
 extractBool = mapMaybe byBool
   where byBool (CBool x) = Just x

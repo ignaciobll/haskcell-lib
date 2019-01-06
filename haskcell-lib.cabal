@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 706962181f8d1f3d7d0ff3b371c525d6b4d51d06b061b8685188ced4845bbd12
+-- hash: 18b90627014a88b4cb9faa12ea337741985a5308003e2489f6a1df88b64f1a43
 
 name:           haskcell-lib
-version:        0.2.1.0
+version:        0.2.1.1
 description:    Please see the README on GitHub at <https://github.com/ignaciobll/haskcell-lib#readme>
 homepage:       https://github.com/ignaciobll/haskcell-lib#readme
 bug-reports:    https://github.com/ignaciobll/haskcell-lib/issues
@@ -31,6 +31,7 @@ library
       Data.SpreadSheet
       Data.SpreadSheet.Cell
       Data.SpreadSheet.Date
+      Data.SpreadSheet.Internal.Gen
       Data.SpreadSheet.Internal.Pretty
   other-modules:
       Paths_haskcell_lib
@@ -70,6 +71,7 @@ test-suite expenses-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Data.SpreadSheet.CellSpec
       Data.SpreadSheetSpec
       Paths_haskcell_lib
   hs-source-dirs:
