@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 18b90627014a88b4cb9faa12ea337741985a5308003e2489f6a1df88b64f1a43
+-- hash: 1d73a7bafaf5fcf15f14c3b842058dae4113e44e0b65f49bea92b29033c418f9
 
 name:           haskcell-lib
 version:        0.2.1.1
@@ -67,7 +67,7 @@ executable example-expenses
     , time
   default-language: Haskell2010
 
-test-suite expenses-test
+test-suite haskcell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
