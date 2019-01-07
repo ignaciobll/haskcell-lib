@@ -1,4 +1,5 @@
 # haskcell-lib
+[![Build Status](https://travis-ci.com/ignaciobll/haskcell-lib.svg?token=d4Ka9kzAxQ1egjAtRRFu&branch=master)](https://travis-ci.com/ignaciobll/haskcell-lib)
 
 ## Build
 Para construir la librería:
