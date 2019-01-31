@@ -58,7 +58,6 @@ module Data.SpreadSheet.Internal.Pretty
   ) where
 
 import Data.SpreadSheet
-import Data.SpreadSheet (SpreadSheet(..))
 import qualified Data.Matrix as Mat
 import qualified Data.Map.Strict as Map
 
@@ -70,9 +69,9 @@ class Celldable a where
 -- | Función alternativa para representar una hoja de cálculo.
 prettyShowSpreadSheet :: (Show a, Celldable a) => SpreadSheet a -> String
 prettyShowSpreadSheet Empty = "Empty"
-prettyShowSpreadSheet s = (show $ Range (topl s) (botr s)) ++ "\n" ++ Mat.prettyMatrix mx
+prettyShowSpreadSheet s = show (Range (topl s) (botr s)) ++ "\n" ++ Mat.prettyMatrix mx
   where lp = (,) <$> [(fst $ topl s)..(fst $ botr s)] <*> [(snd $ topl s)..(snd $ botr s)] :: [Pos]
         ls = map (\k -> Map.findWithDefault blank k (mp s)) lp
-        nrows = fromIntegral $ (1 + (fst $ botr s) - (fst $ topl s))
-        ncols = fromIntegral $ (1 + (snd $ botr s) - (snd $ topl s))
+        nrows = fromIntegral $ 1 + fst  (botr s) - fst (topl s)
+        ncols = fromIntegral $ 1 + snd  (botr s) - snd (topl s)
         mx = Mat.transpose $ Mat.fromList nrows ncols ls

@@ -20,7 +20,6 @@ module Data.SpreadSheet.Cell
   ) where
 
 import Data.SpreadSheet
-import Data.SpreadSheet (Range(..), SpreadSheet(..))
 import Data.SpreadSheet.Internal.Pretty
 import Numeric.Natural (Natural(..))
 
@@ -72,16 +71,16 @@ class CCell a  where
   boxCell :: a -> Cell
 
 instance CCell Day where
-  boxCell a = CDay a
+  boxCell = CDay
 
 instance CCell Double where
-  boxCell a = CNumber a
+  boxCell = CNumber
 
 instance CCell String where
-  boxCell a = CString a
+  boxCell = CString
 
 instance CCell Bool where
-  boxCell a = CBool a
+  boxCell = CBool
 
 instance CCell Cell where
   boxCell = id
@@ -179,7 +178,7 @@ extractBool = mapMaybe byBool
 -- │ False     ■ │
 -- └             ┘
 putCell :: CCell a => Pos -> (SpreadSheet Cell -> a) -> SpreadSheet Cell -> SpreadSheet Cell
-putCell p f s = put p (boxCell . f) s
+putCell p f = put p (boxCell . f)
 
 
 -- | Para la construcción de tipos complejos es necesario indicar la
@@ -218,7 +217,7 @@ toCellAlign :: CompositeCell a => Align -> Pos -> [a] -> SpreadSheet Cell
 toCellAlign align (x,y) listCC
   | align == Horizontal = mconcat $ zipWith join rowIndex listCC
   | align == Vertical   = mconcat $ zipWith join colIndex listCC
-  where join l c = fromList $ zipWith (,) l (buildCell c)
+  where join l c = fromList $ zip l (buildCell c)
         colIndex = map (\col -> [(x + col, y + i) | i <- [0..]]) [0..]
         rowIndex = map (\row -> [(x + i, y + row) | i <- [0..]]) [0..]
 
