@@ -44,7 +44,6 @@ import Data.Tuple (swap)
 import Data.Ix (Ix(..))
 import Numeric.Natural (Natural(..))
 
-
 -- | Posición de una celda en la hoja de cálculo. Comienzan en @(1,1)@.
 --
 -- Punto bidimensional en el que la primera coordenada corresponde a
@@ -124,7 +123,7 @@ instance {-# OVERLAPPABLE #-} Show a => Show (SpreadSheet a) where
 
 showSpreadSheet :: Show a => SpreadSheet a -> String
 showSpreadSheet Empty = "Empty"
-showSpreadSheet (Mk tl br s) = show (Range tl br) ++ "\n" ++ (show s)
+showSpreadSheet (Mk tl br s) = show (Range tl br) ++ "\n" ++ show s
 
 {- Propiedades derivadas -}
 
@@ -227,13 +226,13 @@ fromDict :: Map.Map Pos a -> SpreadSheet a
 fromDict s
   | Map.null s = Empty
   | otherwise = fromDict' init end s
-  where init = bimap min (min . (Map.mapKeys swap)) (s,s)
-        end  = bimap max (max . (Map.mapKeys swap)) (s,s)
+  where init = bimap min (min . Map.mapKeys swap) (s,s)
+        end  = bimap max (max . Map.mapKeys swap) (s,s)
         min = fst . fst . Map.findMin
         max = fst . fst . Map.findMax
 
 fromDict' :: Pos -> Pos -> Map.Map Pos a -> SpreadSheet a
-fromDict' init end s = Mk init end s
+fromDict' = Mk
 
 
 -- | Transforma una hoja de cálculo a una lista que contiene sus
@@ -329,7 +328,7 @@ get p (Mk _ _ s) = Map.lookup p s
 -- fromList [((1,1),"a"),((2,2),"d")]
 select :: (Pos -> Bool) -> SpreadSheet a -> SpreadSheet a
 select _ Empty = Empty
-select f s     = fromDict . fst . (Map.partitionWithKey (\k _ -> f k)) $ mp s
+select f s     = fromDict . fst . Map.partitionWithKey (\k _ -> f k) $ mp s
 
 
 -- | Dando un rango y una hoja de cálculo, genera una hoja de cálculo
